@@ -1,13 +1,17 @@
 .date-range-container {
       padding: 20px;
       max-width: 600px;
-      margin: 0 auto;
+      // margin: 0 auto;
+    }
+
+    h2 {
+      text-align: center;
     }
 
     .date-pickers {
       display: flex;
       gap: 20px;
-      flex-wrap: wrap;
+      // flex-wrap: wrap;
     }
 
     mat-form-field {
@@ -15,19 +19,6 @@
       min-width: 200px;
     }
 
-    .selected-range {
-      margin: 20px 0;
-      padding: 15px;
-      background-color: #f5f5f5;
-      border-radius: 4px;
-    }
-
-    .range-info {
-      margin: 10px 0;
-      padding: 15px;
-      background-color: #e3f2fd;
-      border-radius: 4px;
-    }
 
     .additional-info {
       margin-top: 10px;
@@ -45,10 +36,10 @@
     }
 
     .quick-ranges {
-      margin: 20px 0;
+      // margin: 20px 0;
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      // gap: 10px;
+      // flex-wrap: wrap;
     }
 
     .action-buttons {

@@ -14,7 +14,7 @@ export const routes: Routes = [
     {path: 'order-details/:orderId', component: OrderDetails},
     {path: 'production', component: Production},
     {path: 'supply', component: Supply},
-    {path: 'supply/:orderId', component: Supply}
-    // { path: '', redirectTo: '/home', pathMatch: 'full' }, // Optional: redirect empty path
-    // { path: '**', redirectTo: '/home' } // Wildcard route - catches all undefined paths
+    {path: 'supply/:orderId', component: Supply},
+    { path: '', redirectTo: '/home', pathMatch: 'full' }, // Optional: redirect empty path
+    { path: '**', redirectTo: '/home' } // Wildcard route - catches all undefined paths
 ];

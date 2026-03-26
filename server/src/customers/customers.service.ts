@@ -1,15 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Customer, CustomerDocument } from './schemas/customer.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model, Types } from 'mongoose';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { Order, OrderDocument } from 'src/orders/schemas/order.schema';
+import { OrderItem, OrderItemDocument } from 'src/order-items/order-item.schema';
 
 @Injectable()
 export class CustomersService {
 
     constructor(
-        @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>
+        @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
+        @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+        @InjectModel(OrderItem.name) private orderItemModel: Model<OrderItemDocument>
     ) {}
 
     async create(createCustomerDto: CreateCustomerDto): Promise<Customer> {
@@ -62,4 +66,56 @@ export class CustomersService {
     async countActiveCustomers(): Promise<number> {
         return this.customerModel.countDocuments({ isActive: true }).exec();
     }
+
+    async deleteCustomerWithOrders(customerId: string): Promise<{ success: boolean; message: string }> {
+        // Validate customer exists
+        const objectId = new Types.ObjectId(customerId);
+        const customer = await this.customerModel.findById(customerId);
+        if (!customer) {
+            throw new BadRequestException('Customer not found');
+        }
+        
+        try {
+            // Find all orders for this customer
+            const orders = await this.orderModel.find({ customerId: objectId });
+            const orderIds = orders.map(order => order._id);
+            console.log(orderIds);
+            
+            // Delete order items for these orders
+            if (orderIds.length > 0) {
+                const itemsDeleted = await this.orderItemModel.deleteMany({ 
+                    orderId: { $in: orderIds } 
+                });
+                
+                console.log(`Deleted ${itemsDeleted.deletedCount} order items`);
+            }
+            
+            // Delete orders
+            if (orderIds.length > 0) {
+                const ordersDeleted = await this.orderModel.deleteMany({ 
+                    customerId: objectId 
+                });
+                
+                console.log(`Deleted ${ordersDeleted.deletedCount} orders`);
+            }
+            
+            // Delete the customer
+            const customerDeleted = await this.customerModel.deleteOne({ 
+                _id: customerId 
+            });
+            
+            if (customerDeleted.deletedCount === 0) {
+                throw new BadRequestException('Failed to delete customer');
+            }
+            
+            return {
+                success: true,
+                message: `Customer "${customer.name}" and all associated orders/items deleted successfully`
+            };
+            
+        } catch (error) {
+            throw new BadRequestException(`Delete failed: ${error.message}`);
+        }
+    }
+
 }

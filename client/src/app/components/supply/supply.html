@@ -1,5 +1,6 @@
 
-
-<app-date-range (rangeUpdated)="onRangeUpdated($event)"/>
+@if(!orderId()) {
+    <app-date-range (rangeUpdated)="onRangeUpdated($event)"/>
+}
 
 <app-supply-items-table [supplyItems]="supplyItemsForDisplay()" />

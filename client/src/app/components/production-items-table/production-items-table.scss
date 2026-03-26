@@ -29,13 +29,13 @@ tr.example-element-row:not(.example-expanded-row):active {
 
 .child-table {
   width: 100%;
-  background-color: rgba(153, 216, 255, 0.38);
+  background-color: rgba(200, 213, 221, 0.38);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .child-table th {
-  background-color: #abc7ff;
+  background-color: #cad7f2;
   font-weight: 500;
 }
 
@@ -52,6 +52,29 @@ tr.example-element-row:not(.example-expanded-row):active {
 
 .mat-column-productCode {
   padding-left: 24px;
+}
+
+.table-container {
+  position: relative;
+  width: 100%;
+  
+  .table-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+    
+    .export-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      mat-icon {
+        font-size: 20px;
+        height: 20px;
+        width: 20px;
+      }
+    }
+  }
 }
 
 

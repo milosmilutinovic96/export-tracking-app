@@ -18,7 +18,7 @@ import { DateRange } from '../date-range/date-range';
 export class Supply {
   #supplyItems = signal<SupplyItem[]>([])
   private route = inject(ActivatedRoute);
-  private orderId = signal<string>(this.route.snapshot.params['orderId']);
+  orderId = signal<string>(this.route.snapshot.params['orderId']);
   supplyService = inject(SupplyService);
   loadingService = inject(LoadingService);
   startDate = signal<Date | null>(null);

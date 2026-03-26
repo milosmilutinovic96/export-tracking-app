@@ -14,7 +14,7 @@ import { MessagesService } from '../../services/messages.service';
     CustomersCardList,
     MatButtonModule,
     MatIconModule,
-],
+  ],
   templateUrl: './customers.html',
   styleUrl: './customers.scss',
 })
@@ -39,10 +39,10 @@ export class Customers {
       const customers = await this.customersService.loadAllCustomers();
       this.customers.set(customers);
     }
-      catch (error) {
-        this.messagesService.showMessage('Error loading customers', 'error');
-        console.error('Error loading customers:', error);
-      }
+    catch (error) {
+      this.messagesService.showMessage('Error loading customers', 'error');
+      console.error('Error loading customers:', error);
+    }
   }
 
   onCustomerUpdated(updatedCustomer: Customer) {
@@ -75,7 +75,7 @@ export class Customers {
         title: 'Dodaj novog kupca',
       }
     );
-    if(!newCustomer) {
+    if (!newCustomer) {
       return;
     }
     const newCustomers = [...this.customers(), newCustomer];

@@ -33,9 +33,9 @@ export class CustomersController {
     }
 
     @Delete(':id')
-    @HttpCode(HttpStatus.NO_CONTENT)
+    // @HttpCode(HttpStatus.NO_CONTENT)
     async remove(@Param('id') id: string) {
-        return this.customersService.remove(id);
+        return this.customersService.deleteCustomerWithOrders(id);
     }
 
     @Patch(':id/deactivate')

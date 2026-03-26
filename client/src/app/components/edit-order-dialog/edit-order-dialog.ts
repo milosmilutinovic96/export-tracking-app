@@ -58,6 +58,7 @@ export class EditOrderDialog {
       this.updateOrder(this.data?.order!.id, orderProps);
     }
     else if(this.data.mode === 'create') {
+      orderProps.deliveryDateFromProduction = orderProps.deliveryDate;
       this.createOrder(orderProps);
     }
   } 

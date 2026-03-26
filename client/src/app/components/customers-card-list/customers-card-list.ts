@@ -31,7 +31,7 @@ export class CustomersCardList {
 
   async onEditCustomer(customer: Customer) {
     const updatedCustomer = await openEditCustomerDialog(
-      this.dialog, 
+      this.dialog,
       {
         mode: 'edit',
         title: `Izmeni podatke: ${customer.name}`,
@@ -51,7 +51,7 @@ export class CustomersCardList {
         title: 'Potvrdi akciju'
       }
     );
-    if(confirmation) {
+    if (confirmation) {
       this.customerDeleted.emit(customer.id);
     }
   }

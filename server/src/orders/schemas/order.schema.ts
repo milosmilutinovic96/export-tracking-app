@@ -24,6 +24,9 @@ export class Order {
     @Prop({ required: true, type: Date })   
     deliveryDate: Date;
 
+    @Prop({ required: true, type: Date })
+    deliveryDateFromProduction: Date;
+
     @Prop({ default: false })
     isDelivered: boolean;
 }

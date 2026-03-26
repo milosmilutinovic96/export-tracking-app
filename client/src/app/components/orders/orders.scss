@@ -1,5 +1,14 @@
+
+
 .add-order-btn {
-    position: fixed;
-    bottom: 50px;
-    right: 50px;
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+  z-index: 100;
+}
+
+.orders-container {
+    height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
 }

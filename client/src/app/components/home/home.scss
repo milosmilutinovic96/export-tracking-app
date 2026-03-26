@@ -1,0 +1,25 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 64px);
+}
+
+button {
+    padding: 50px;
+    border-radius: 10px;
+    border-style: none;
+    background-color: #abc7ff;
+    color: #00458F;
+    font-weight: bold;
+    font-size: medium;
+    margin: 20px;
+
+    &:hover {
+    background-color: #92b4f7; // Darker shade of primary color
+    padding: 52px;
+  }
+}
+
+

@@ -11,6 +11,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { openEditOrderItemDialog } from '../edit-order-item-dialog/edit-order-item-dialog';
 import { OrderItemsService } from '../../services/order-items.service';
 import { OrderItemsTable } from '../order-items-table/order-items-table';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { openUpdateDateDialog } from '../update-date-dialog/update-date-dialog';
 
 @Component({
   selector: 'app-order-details',
@@ -21,6 +23,9 @@ import { OrderItemsTable } from '../order-items-table/order-items-table';
     MatButtonModule,
     DatePipe,
     OrderItemsTable
+  ],
+  providers: [
+{ provide: MAT_DATE_LOCALE, useValue: 'sr-Latn'}
   ],
   templateUrl: './order-details.html',
   styleUrl: './order-details.scss',
@@ -33,6 +38,7 @@ export class OrderDetails {
   order = signal<Order | null>(null);
   orderItems = signal<OrderItem[]>([]);
   dialog = inject(MatDialog);
+  dialogForUpdate = inject(MatDialog);
   private router = inject(Router);
 
 
@@ -98,5 +104,23 @@ export class OrderDetails {
 
   goToSupplyList(orderId: string) {
     this.router.navigate(['/supply',orderId]);
+  }
+
+  async addDeliveryDate(orderId: string) {
+      const newOrderData = await openUpdateDateDialog(
+      this.dialogForUpdate,
+      {
+        title: 'Realan datum spremnosti robe',
+        order: this.order()!,
+        customerId: this.order()?.customerId!
+      }
+    );
+
+    if(!newOrderData) {
+      return;
+    }
+
+    
+    this.order.set({...newOrderData});
   }
 }

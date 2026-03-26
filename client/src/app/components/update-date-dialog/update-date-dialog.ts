@@ -1,0 +1,84 @@
+import { Component, inject } from '@angular/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { OrdersService } from '../../services/orders.service';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { EditDateDialogData } from '../../models/edit-date-dialog-data.model';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { Order } from '../../models/order.model';
+import { firstValueFrom } from 'rxjs';
+import { MatInputModule } from '@angular/material/input';
+
+@Component({
+  selector: 'app-update-date-dialog',
+  imports: [
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatDialogModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatFormFieldModule
+  ],
+  providers: [
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'sr-Latn'}
+  ],
+  templateUrl: './update-date-dialog.html',
+  styleUrl: './update-date-dialog.scss',
+})
+export class UpdateDateDialog {
+
+
+  ordersService = inject(OrdersService);
+  fb = inject(FormBuilder);
+  dialogRef = inject(MatDialogRef);
+  data: EditDateDialogData = inject(MAT_DIALOG_DATA);
+
+  form = this.fb.group({
+    deliveryDateFromProduction: ['']
+  });
+
+  constructor() {
+    this.form.patchValue({
+      deliveryDateFromProduction: this.data.order?.deliveryDateFromProduction?.toString() || new Date().toString(),
+    });
+  }
+
+  onSave() {
+      const orderProps = this.form.value as Partial<Order>;
+      orderProps.customerId = this.data.customerId;
+     
+        this.updateOrder(this.data?.order!.id, orderProps);
+    } 
+  
+    onClose() {
+      this.dialogRef.close();
+    }
+
+    async updateOrder(orderId: string, changes: Partial<Order>) {
+        try {
+          const updatedOrder = await this.ordersService.updateOrder(orderId, changes);
+          console.log('Updated order:', updatedOrder);
+          this.dialogRef.close(updatedOrder);
+        }
+        catch(error) {
+          console.error('Error updating order:', error);
+          alert('Došlo je do greške prilikom ažuriranja trebovanja. Molimo pokušajte ponovo.');
+        }
+      }
+}
+
+
+export async function openUpdateDateDialog(dialog: MatDialog, data: EditDateDialogData) {
+  const config = new MatDialogConfig<EditDateDialogData>();
+  config.disableClose = true;
+  config.autoFocus = true;
+  config.width = '400px';
+  config.data = data;
+
+  const close$ = dialog.open(UpdateDateDialog, config)
+    .afterClosed();
+
+  return firstValueFrom(close$);
+}

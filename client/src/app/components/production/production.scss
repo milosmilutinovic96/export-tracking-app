@@ -1,2 +1,16 @@
+.form-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    
+    mat-form-field {
+        height: 76px;
+        align-self: flex-end;
+        margin-bottom: 19px;
+    }
 
+    app-date-range {
+        align-self: flex-end;
+    }
+}
 

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,7 +22,8 @@ import { firstValueFrom } from 'rxjs';
     MatDatepickerModule
   ],
   providers: [
-    provideNativeDateAdapter()
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'sr-Latn' }
   ],
   templateUrl: './edit-order-item-dialog.html',
   styleUrl: './edit-order-item-dialog.scss',
@@ -65,6 +66,7 @@ export class EditOrderItemDialog {
       this.updateOrderItem(this.data.orderItem!.id, orderItemProps);
     }
     else if(this.data.mode === 'create') {
+      orderItemProps.dateOfExpire = undefined;
       this.createOrderItem(orderItemProps);
     }
   }

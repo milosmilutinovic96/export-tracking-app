@@ -33,8 +33,7 @@ export class OrdersController {
     }
 
     @Delete(':id')
-    @HttpCode(HttpStatus.NO_CONTENT)
     async delete(@Param('id') id: string) {
-        return this.ordersService.delete(id);
+        return this.ordersService.deleteOrderWithItems(id);
     }
 }

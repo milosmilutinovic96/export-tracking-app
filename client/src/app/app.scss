@@ -1,3 +1,4 @@
+
 mat-sidenav mat-icon {
     margin-right: 10px;
 }
@@ -5,3 +6,25 @@ mat-sidenav mat-icon {
 span {
     margin-left: 30px;
 }
+
+mat-toolbar {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    z-index: 1000;
+    span {
+        margin-left: 30px;
+        font-size: large;
+        padding: 5px;
+        &:hover {
+            font-size: larger;
+            border-radius: 8px;
+            background-color: #b8c4e0;
+        }
+        &:active {
+            background-color: #a8b1c5;
+
+        }
+    }
+}
+

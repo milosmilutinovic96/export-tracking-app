@@ -8,5 +8,6 @@ export type Order = {
     orderName: string;
     orderDate: Date;
     deliveryDate: Date;
+    deliveryDateFromProduction: Date
     isDelivered: boolean;
 }

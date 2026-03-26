@@ -58,9 +58,11 @@ export class DateRange {
   onEndDateChange() {
     if (this.startDate() && this.endDate() && this.endDate()! < this.startDate()!) {
       this.endDate.set(null);
+      this.updateRangeSignal();
     } else {
       this.updateRangeSignal();
     }
+    console.log(this.selectedRange());
   }
 
   clearDates() {
@@ -98,4 +100,15 @@ export class DateRange {
   hasBothDateSelected = computed(() =>
     !!(this.selectedRange().start && this.selectedRange().end)
   );
+
+  isEndDateBeforeStart = computed(() => {
+    const start = this.selectedRange().start;
+    const end = this.selectedRange().end;
+    return !!(start && end && end < start);
+  });
+
+  // Alternative: Check if dates are invalid (both selected but end < start)
+  isDateRangeInvalid = computed(() => {
+    return this.hasBothDateSelected() && !this.isValidRange();
+  });
 }

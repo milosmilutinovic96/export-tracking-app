@@ -24,7 +24,13 @@ export class CreateOrderDto {
     @IsNotEmpty()
     deliveryDate: Date;
 
+    @IsDateString()
+    @IsNotEmpty()
+    deliveryDateFromProduction: Date
+
     @IsBoolean()
     @IsOptional()
     isDelivered?: boolean;
+
+
 }

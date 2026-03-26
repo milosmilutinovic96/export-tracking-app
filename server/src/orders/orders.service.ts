@@ -1,23 +1,24 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { Order, OrderDocument } from "./schemas/order.schema";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { UpdateOrderDto } from "./dto/update-order.dto";
-import { CreateCustomerDto } from "src/customers/dto/create-customer.dto";
-import { data } from "src/norms/output";
+import { OrderItem, OrderItemDocument } from "src/order-items/order-item.schema";
 
 
 @Injectable()
 export class OrdersService {
     constructor(
-        @InjectModel(Order.name) private orderModel: Model<OrderDocument>
+        @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+        @InjectModel(OrderItem.name) private orderItemModel: Model<OrderItemDocument>
     ) {}
 
     async create(createOrderDto: CreateOrderDto): Promise<Order> {
         const tmpOrder = {...createOrderDto};
         tmpOrder.customerId = new Types.ObjectId(createOrderDto.customerId);
         const createdOrder = new this.orderModel(tmpOrder);
+        
         console.log(createdOrder);
         return createdOrder.save();
     }
@@ -72,4 +73,45 @@ export class OrdersService {
     async countUndeliveredByCustomer(customerId: string): Promise<number> {
         return this.orderModel.countDocuments({ customerId, isDelivered: false }).exec();
     }
+
+    async deleteOrderWithItems(orderId: string): Promise<{ success: boolean; message: string }> {
+            // Validate order exists
+            const objectId = new Types.ObjectId(orderId);
+            const order = await this.orderModel.findById(objectId);
+            if (!order) {
+                throw new BadRequestException('Order not found');
+            }
+            
+            try {
+                // Find all items for this order
+                const items = await this.orderItemModel.find({ orderId: objectId });
+                
+                // Delete order items for this order
+                if (items.length > 0) {
+                    const itemsDeleted = await this.orderItemModel.deleteMany({ 
+                        orderId: objectId
+                    });
+                    
+                    console.log(`Deleted ${itemsDeleted.deletedCount} order items`);
+                }
+            
+                
+                // Delete the order
+                const orderDeleted = await this.orderModel.deleteOne({ 
+                    _id: objectId
+                });
+                
+                if (orderDeleted.deletedCount === 0) {
+                    throw new BadRequestException('Failed to delete order!');
+                }
+                
+                return {
+                    success: true,
+                    message: `Order "${order.orderName}" and all associated items deleted successfully`
+                };
+                
+            } catch (error) {
+                throw new BadRequestException(`Delete failed: ${error.message}`);
+            }
+        }
 }
