@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Customer } from '../../models/customer.model';
 import { CustomersService } from '../../services/customers.service';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { CustomersCardList } from '../customers-card-list/customers-card-list';
 import { MatDialog } from '@angular/material/dialog';
 import { openEditCustomerDialog } from '../edit-customer-dialog/edit-customer-dialog';
 import { MessagesService } from '../../services/messages.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-customers',
@@ -24,6 +25,8 @@ export class Customers {
   customersService = inject(CustomersService);
   dialog = inject(MatDialog);
   messagesService = inject(MessagesService);
+  authService = inject(AuthService);
+  role = computed(() => this.authService.user() ? this.authService.user()!.roles[0] : null);
 
   constructor() {
     effect(() => {
@@ -38,6 +41,7 @@ export class Customers {
     try {
       const customers = await this.customersService.loadAllCustomers();
       this.customers.set(customers);
+
     }
     catch (error) {
       this.messagesService.showMessage('Error loading customers', 'error');

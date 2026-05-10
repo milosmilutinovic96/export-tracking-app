@@ -11,4 +11,6 @@ export type Norm = {
     elementItemName: string;
     elementItemUnitOfMeasure: string;
     elementItemQuantity: number;
+    regularNorms?: Norm[];
+    norms202?: Norm[];
 }

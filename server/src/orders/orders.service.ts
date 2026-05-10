@@ -19,7 +19,6 @@ export class OrdersService {
         tmpOrder.customerId = new Types.ObjectId(createOrderDto.customerId);
         const createdOrder = new this.orderModel(tmpOrder);
         
-        console.log(createdOrder);
         return createdOrder.save();
     }
 
@@ -30,7 +29,7 @@ export class OrdersService {
 
     async findOne(id: string): Promise<Order> {
 
-        const order = await this.orderModel.findById(id).exec();
+        const order = await this.orderModel.findById(id).populate('customerId').exec();
         if (!order) {
             throw new NotFoundException(`Order with id ${id} not found`);
         }
@@ -40,7 +39,6 @@ export class OrdersService {
     async update(id: string, updateOrderDto: UpdateOrderDto): Promise<Order> {
         const dataToUpdate = {...updateOrderDto};
         dataToUpdate.customerId = new Types.ObjectId(dataToUpdate.customerId);
-        console.log(dataToUpdate.customerId);
         const updatedOrder = await this.orderModel
             .findByIdAndUpdate(id, dataToUpdate, { returnDocument: 'after' })
             .exec();
@@ -61,7 +59,7 @@ export class OrdersService {
 
     async markAsDelivered(id: string): Promise<Order> {
         const deliveredOrder = await this.orderModel
-            .findByIdAndUpdate(id, { isDelivered: true }, { new: true })
+            .findByIdAndUpdate(id, { state: 'delivered' }, { new: true })
             .exec();
 
         if (!deliveredOrder) {
@@ -71,7 +69,7 @@ export class OrdersService {
     }
 
     async countUndeliveredByCustomer(customerId: string): Promise<number> {
-        return this.orderModel.countDocuments({ customerId, isDelivered: false }).exec();
+        return this.orderModel.countDocuments({ customerId, state: { $in: ['loading', 'created']}}).exec();
     }
 
     async deleteOrderWithItems(orderId: string): Promise<{ success: boolean; message: string }> {
@@ -110,7 +108,7 @@ export class OrdersService {
                     message: `Order "${order.orderName}" and all associated items deleted successfully`
                 };
                 
-            } catch (error) {
+            } catch (error: any) {
                 throw new BadRequestException(`Delete failed: ${error.message}`);
             }
         }

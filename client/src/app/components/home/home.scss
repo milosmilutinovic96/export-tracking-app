@@ -7,19 +7,25 @@
 }
 
 button {
-    padding: 50px;
+    width: 50%;
+    padding: 30px;
     border-radius: 10px;
     border-style: none;
-    background-color: #abc7ff;
-    color: #00458F;
+    background-color: #4A306D;
+    color: white;
     font-weight: bold;
-    font-size: medium;
-    margin: 20px;
+    font-size: x-large;
+    margin: 25px auto;
 
     &:hover {
-    background-color: #92b4f7; // Darker shade of primary color
-    padding: 52px;
-  }
+    background-color: #4a306df0; // Darker shade of primary color
+    translate: -2px -2px;
+    }
+
+    &:active {
+      translate: 2px 2px;
+    }
+
 }
 
 

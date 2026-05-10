@@ -24,11 +24,14 @@ export class Order {
     @Prop({ required: true, type: Date })   
     deliveryDate: Date;
 
-    @Prop({ required: true, type: Date })
-    deliveryDateFromProduction: Date;
+    @Prop({ required: true, type: Object })
+    deliveryDateFromProduction: {date: Date, comment: string};
 
-    @Prop({ default: false })
-    isDelivered: boolean;
+    @Prop({ reqired: true })
+    state: 'created' | 'loading' | 'delivered';
+
+    @Prop({required: false, type: Object})
+    loadedOn: {date: Date, comment: string};
 }
 
 export type OrderDocument = HydratedDocument<Order>;
@@ -42,3 +45,5 @@ OrderSchema.virtual('items', {
     options: {sort: {productCode: 1}}
     
 });
+
+

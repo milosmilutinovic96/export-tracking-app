@@ -14,8 +14,8 @@ export class ProductionItemsService {
 
 
     async findAll() {
-        const orders = await this.orderModel.find({isDelivered: false})
-            .select('-customerId -orderNo -orderName -__v -createdAt -updatedAt -isDelivered')
+        const orders = await this.orderModel.find({state: {$in: ['created', 'loading']}})
+            .select('-customerId -orderNo -orderName -__v -createdAt -updatedAt -state')
             .populate({
                 path: 'items',
                 populate: {

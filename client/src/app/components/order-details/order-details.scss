@@ -1,9 +1,10 @@
 button {
     margin-bottom: 15px;
+    width: 260px;
 }
 
 mat-card {
-    max-width: 500px;
+    max-width: 700px;
     margin: 50px auto;
     display: flex;
     flex-direction: row;
@@ -15,8 +16,12 @@ mat-card-actions {
     justify-content: center;
 }
 
-mat-card-content, mat-card-header {
-
+mat-card-content {
+    p {
+        span {
+            font-weight: bold;
+        }
+    }
 }
 
 mat-card-actions button {

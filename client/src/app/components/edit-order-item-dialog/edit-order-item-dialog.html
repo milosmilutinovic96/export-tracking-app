@@ -2,7 +2,7 @@
     <h2 matDialogTitle>{{data.title}}</h2>
     <mat-dialog-content [formGroup]="form">
         @if(data.mode === 'create') {
-            <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline">
             <mat-label>Šifra artikla</mat-label>
             <input matInput formControlName="productCode" />
         </mat-form-field>
@@ -12,23 +12,23 @@
         </mat-form-field>
 
         }
-        
+
         @if(data.mode === 'edit') {
-            <mat-form-field appearance="outline">
-                <mat-label>{{(data.addFlag === 'add')? 'Dodaj' : 'Smanji'}}</mat-label>
-                <input type="number" matInput formControlName="numberOfReadyTp" />
-            </mat-form-field>  
-            <mat-form-field appearance="outline">
-                <mat-label>Lot</mat-label>
-                <input type="text" matInput formControlName="lot" />
-            </mat-form-field>  
-            <mat-form-field appearance="outline">
-                <mat-label>Datum isteka</mat-label>
-                <input matInput formControlName="dateOfExpire" [matDatepicker]="datePicker">
-                <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
-                <mat-datepicker #datePicker></mat-datepicker>
-            </mat-form-field>
-        }  
+        <mat-form-field appearance="outline">
+            <mat-label>{{(data.addFlag === 'add')? 'Dodaj' : 'Smanji'}}</mat-label>
+            <input type="number" matInput formControlName="numberOfReadyTp" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Lot</mat-label>
+            <input type="text" matInput formControlName="lot" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Datum isteka</mat-label>
+            <input matInput formControlName="dateOfExpire" [matDatepicker]="datePicker">
+            <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+            <mat-datepicker #datePicker></mat-datepicker>
+        </mat-form-field>
+        }
     </mat-dialog-content>
     <mat-dialog-actions>
         <button matButton="filled" (click)="onSave()">Sačuvaj</button>

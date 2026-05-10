@@ -9,6 +9,7 @@ import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/cor
 import { Order } from '../../models/order.model';
 import { firstValueFrom } from 'rxjs';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-update-date-dialog',
@@ -18,11 +19,12 @@ import { MatInputModule } from '@angular/material/input';
     MatDialogModule,
     ReactiveFormsModule,
     MatInputModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatButtonModule
   ],
   providers: [
     provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'sr-Latn'}
+    { provide: MAT_DATE_LOCALE, useValue: 'sr-Latn' }
   ],
   templateUrl: './update-date-dialog.html',
   styleUrl: './update-date-dialog.scss',
@@ -36,37 +38,54 @@ export class UpdateDateDialog {
   data: EditDateDialogData = inject(MAT_DIALOG_DATA);
 
   form = this.fb.group({
-    deliveryDateFromProduction: ['']
+    date: [''],
+    comment: ['']
   });
 
   constructor() {
-    this.form.patchValue({
-      deliveryDateFromProduction: this.data.order?.deliveryDateFromProduction?.toString() || new Date().toString(),
-    });
+    if (this.data.mode === 'production') {
+      this.form.patchValue({
+        date: this.data.order?.deliveryDateFromProduction?.date?.toString() || new Date().toString(),
+        comment: this.data.order?.deliveryDateFromProduction?.comment || ''
+      });
+    } else {
+      this.form.patchValue({
+        date: new Date().toString(),
+        comment: ''
+      });
+    }
   }
 
   onSave() {
-      const orderProps = this.form.value as Partial<Order>;
-      orderProps.customerId = this.data.customerId;
-     
-        this.updateOrder(this.data?.order!.id, orderProps);
-    } 
-  
-    onClose() {
-      this.dialogRef.close();
+    const orderProps = {} as Partial<Order>;
+    const props = this.form.value as unknown as {date: Date, comment: string};
+    if(this.data.mode === 'production') {
+      orderProps.deliveryDateFromProduction = {...props};
+    } else {
+      orderProps.loadedOn = {...props};
+      orderProps.state = 'delivered';
     }
 
-    async updateOrder(orderId: string, changes: Partial<Order>) {
-        try {
-          const updatedOrder = await this.ordersService.updateOrder(orderId, changes);
-          console.log('Updated order:', updatedOrder);
-          this.dialogRef.close(updatedOrder);
-        }
-        catch(error) {
-          console.error('Error updating order:', error);
-          alert('Došlo je do greške prilikom ažuriranja trebovanja. Molimo pokušajte ponovo.');
-        }
-      }
+    orderProps.customerId = this.data.customerId;
+
+    this.updateOrder(this.data?.order!.id, orderProps);
+  }
+
+  onClose() {
+    this.dialogRef.close();
+  }
+
+  async updateOrder(orderId: string, changes: Partial<Order>) {
+    try {
+      const updatedOrder = await this.ordersService.updateOrder(orderId, changes);
+      console.log('Updated order:', updatedOrder);
+      this.dialogRef.close(updatedOrder);
+    }
+    catch (error) {
+      console.error('Error updating order:', error);
+      alert('Došlo je do greške prilikom ažuriranja trebovanja. Molimo pokušajte ponovo.');
+    }
+  }
 }
 
 

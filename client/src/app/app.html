@@ -1,8 +1,9 @@
 <mat-sidenav-container fullscreen>
   <mat-sidenav #sidenav>
     <mat-nav-list (click)="sidenav.close()">
+      @if(authService.isLoggedIn()) {
       <a mat-list-item routerLink="customers">
-        <mat-icon>library_books</mat-icon>
+        <mat-icon>language</mat-icon>
         <span>Export - Trebovanja</span>
       </a>
       <a mat-list-item routerLink="production">
@@ -13,17 +14,44 @@
         <mat-icon>inventory</mat-icon>
         <span>Nabavka</span>
       </a>
+      <a mat-list-item routerLink="raw-materials">
+        <mat-icon>warehouse</mat-icon>
+        <span>Unos repromaterijala</span>
+      </a>
+      <a mat-list-item (click)="authService.logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </a>
+      }
+      @if(!authService.isLoggedIn()) {
+        <a mat-list-item routerLink="login">
+          <mat-icon>account_circle</mat-icon>
+          <span>Login</span>
+        </a>
+      }
+
     </mat-nav-list>
   </mat-sidenav>
-  <mat-toolbar class="mat-bg-primary-container mat-text-on-primary-container mat-border-variant mat-font-body-lg">
-    <button mat-icon-button (click)="sidenav.open()">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <span routerLink="home">Export-tracking app</span>
-  </mat-toolbar>
+  @if(authService.isLoggedIn()) {
+    <mat-toolbar class="mat-border-variant mat-font-body-lg">
+      <button mat-icon-button (click)="sidenav.open()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span routerLink="home">Početna</span>
+      @if(canGoBack) {
+        <span 
+        (click)="goBack()">
+        Nazad
+      </span>
+
+      }
+      <span class="user">Korisnik: {{this.authService.user()!.username}}</span>
+    </mat-toolbar>
+  }
 
   <app-messages />
   <app-loading />
+
   <router-outlet />
 
 </mat-sidenav-container>

@@ -6,13 +6,10 @@ export class ProductsController {
 
     constructor(private readonly productsService: ProductsService) {}
 
-    @Get() 
-    async findAll() {
-        return this.productsService.findAll();
+
+    @Get('create-all-norms')
+    async createAllNorms() {
+        return this.productsService.createAllNorms();
     }
 
-    // @Get('save')
-    // async saveAll() {
-    //     this.productsService.save();
-    // }
 }

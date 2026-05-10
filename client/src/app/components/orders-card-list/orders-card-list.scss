@@ -1,17 +1,21 @@
 mat-card {
     width: 250px;
     margin: 30px 40px;
-    padding: 5px 0;
+    padding: 15px 0;
+    background-color: #4A306D;
+    color: whitesmoke;
 }
 
 mat-card-title {
     font-size: x-large;
     margin: auto;
+    text-align: center;
 }
 
 mat-card-subtitle {
-    margin: auto;
-    font-size: medium
+    font-size: medium;
+    color: whitesmoke;
+    margin: 1px auto;
 }
 
 mat-card-actions {
@@ -20,6 +24,18 @@ mat-card-actions {
 
 button {
     margin: 0 5px;
+    background-color: #52796F;
+    
+    &:hover {
+    translate: -1px -1px;
+    }
+        &:active {
+    translate: 1px 1px;
+    }
+    mat-icon {
+        color: white;
+        
+    }
 }
 
 mat-card-content {
@@ -29,7 +45,7 @@ mat-card-content {
 
 :host {
     display: grid;
-    padding-left: 80px;
+    padding-left: 58px;
     padding-right: 80px;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto auto;

@@ -6,19 +6,21 @@
     <mat-card-subtitle>
         {{customer.country}}
     </mat-card-subtitle>
-    <mat-card-content>
+    <!-- <mat-card-content>
         <p>Status: {{customer.isActive ? 'Aktivan' : 'Neaktivan'}}</p>
-    </mat-card-content>
+    </mat-card-content> -->
     <mat-card-actions>
         <button matMiniFab (click)="goToCustomerOrders(customer.id)">
             <mat-icon>arrow_forward</mat-icon>
         </button>
+        @if(role() === 'EXPORT' || role() === 'ADMIN') {
         <button matMiniFab (click)="onEditCustomer(customer)">
             <mat-icon>edit</mat-icon>
         </button>
         <button (click)="onDeleteCustomer(customer)" matMiniFab>
             <mat-icon>delete_outline</mat-icon>
         </button>
+    }
     </mat-card-actions>
 </mat-card>
 }

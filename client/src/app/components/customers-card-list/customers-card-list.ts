@@ -20,6 +20,7 @@ import { openConfirmationDialog } from '../confirmation-dialog/confirmation-dial
 })
 export class CustomersCardList {
   customers = input.required<Customer[]>();
+  role = input.required<string | null>();
 
   customerUpdated = output<Customer>();
   customerDeleted = output<string>();

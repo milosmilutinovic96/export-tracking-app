@@ -7,24 +7,45 @@ span {
     margin-left: 30px;
 }
 
+mat-sidenav-container {
+  background: #a9cff48c;
+    
+}
+
 mat-toolbar {
     position: sticky;
     position: -webkit-sticky;
     top: 0;
     z-index: 1000;
+    background: #52796F;
+    button {
+        mat-icon {
+            color: white;
+        }
+    }
+
     span {
         margin-left: 30px;
-        font-size: large;
+        font-size: larger;
         padding: 5px;
+            color: #ffffff;
+            font-weight: 500;
+
+
         &:hover {
-            font-size: larger;
+            translate: -1px -1px;
             border-radius: 8px;
-            background-color: #b8c4e0;
+            cursor: pointer;
         }
         &:active {
-            background-color: #a8b1c5;
+            translate: 1px 1px;
 
         }
     }
+
+                .user {
+                    position: absolute;
+                    right: 10px;
+        }
 }
 

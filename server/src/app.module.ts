@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { CustomersModule } from './customers/customers.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,6 +8,10 @@ import { OrderItemsModule } from './order-items/order-items.module';
 import { ProductionItemsModule } from './production-items/production-items.module';
 import { ProductsModule } from './products/products.module';
 import { SupplyModule } from './supply/supply.module';
+import { ReproItemsModule } from './raw-materials/repro-items.module';
+import { AuthModule } from './auth/auth.module';
+import { GetUserMiddleware } from './middleware/get-user.middleware';
+import { CustomersController } from './customers/customers.controller';
 
 @Module({
   imports: [
@@ -22,13 +26,23 @@ import { SupplyModule } from './supply/supply.module';
       }),
       inject: [ConfigService]
     }),
+    AuthModule,
     CustomersModule,
     OrdersModule,
     NormsModule,
     OrderItemsModule,
     ProductionItemsModule,
     ProductsModule,
-    SupplyModule
+    SupplyModule,
+    ReproItemsModule
   ]
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+   configure(consumer: MiddlewareConsumer) {
+     consumer
+      .apply(GetUserMiddleware)
+      .forRoutes(
+        CustomersController
+      );
+   }
+}

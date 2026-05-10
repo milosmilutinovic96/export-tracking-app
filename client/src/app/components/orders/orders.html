@@ -1,13 +1,18 @@
-
-
 <div class="orders-container">
-    <h1>Trebovanja</h1>
-    <button class="add-order-btn" matFab (click)="onAddOrder()">
-        <mat-icon>add</mat-icon>
-    </button>
-    <app-orders-card-list 
-        [orders]="orders()" 
-        (orderUpdated)="onOrderUpdated($event)"
-        (orderDeleted)="onOrderDeleted($event)"
-    />
+    @if(role() === 'ADMIN' || role() === 'EXPORT') {
+        <button class="add-order-btn" matFab (click)="onAddOrder()">
+            <mat-icon>add</mat-icon>
+        </button>
+    }
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
+        <mat-tab label="Aktuelna trebovanja">
+            <app-orders-card-list [role]="role()" [orders]="activeOrders()" (orderUpdated)="onOrderUpdated($event)"
+                (orderDeleted)="onOrderDeleted($event)" />
+        </mat-tab>
+        <mat-tab label="Isporučena trebovanja">
+            <app-orders-card-list [role]="role()" [orders]="deliveredOrders()" (orderUpdated)="onOrderUpdated($event)"
+                (orderDeleted)="onOrderDeleted($event)" />
+        </mat-tab>
+    </mat-tab-group>
+
 </div>

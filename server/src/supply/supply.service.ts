@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { Norm, NormDocument } from "src/norms/norm.schema";
 import { Order, OrderDocument } from "src/orders/schemas/order.schema";
 
 
@@ -8,20 +9,18 @@ import { Order, OrderDocument } from "src/orders/schemas/order.schema";
 export class SupplyService {
     constructor(
         @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
-    ) {}
+        @InjectModel(Norm.name) private normModel: Model<NormDocument>,
+    ) { }
+
 
     async findForOrder(orderId: string) {
-        const order = await this.orderModel.findById(orderId)
-        .select('-customerId -orderNo -orderName -__v -createdAt -updatedAt -isDelivered')
+        const order: any = await this.orderModel.findById(orderId)
+            .select('-customerId -orderNo -orderName -__v -createdAt -updatedAt -state')
             .populate({
                 path: 'items',
                 populate: {
                     path: 'productId',
                     select: '-createdAt -updatedAt -__v',
-                    populate: {
-                        path: 'norms',
-                        select: '-createdAt -updatedAt -__v'
-                    }
                 }
             })
             .populate({
@@ -37,22 +36,18 @@ export class SupplyService {
                 }
             })
             .exec();
-
-        return (order as any).items
+    
+        
+        return order.items;
     }
-
     async findForAll() {
-        const orders = await this.orderModel.find({isDelivered: false})
-        .select('-customerId -orderNo -orderName -__v -createdAt -updatedAt -isDelivered')
+        const orders: any[] = await this.orderModel.find({ state: { $in: ['created', 'loading'] } })
+            .select('-customerId -orderNo -orderName -__v -createdAt -updatedAt -state')
             .populate({
                 path: 'items',
                 populate: {
                     path: 'productId',
                     select: '-createdAt -updatedAt -__v',
-                    populate: {
-                        path: 'norms',
-                        select: '-createdAt -updatedAt -__v'
-                    }
                 }
             })
             .populate({
@@ -69,6 +64,8 @@ export class SupplyService {
             })
             .exec();
 
-        return (orders as any).flatMap(order => order.items);
+        return orders.flatMap(order => order.items);
     }
+
+
 }   

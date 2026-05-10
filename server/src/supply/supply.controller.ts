@@ -8,7 +8,8 @@ export class SupplyController {
 
     @Get(':orderId')
     async findAllForOrder(@Param('orderId') orderId: string) {
-        return await this.supplyService.findForOrder(orderId);
+        const obj = await this.supplyService.findForOrder(orderId);
+        return obj;
     }
 
     @Get()

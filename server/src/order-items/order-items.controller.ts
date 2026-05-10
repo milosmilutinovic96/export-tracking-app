@@ -14,6 +14,12 @@ export class OrderItemsController {
         return this.orderItemsService.create(createOrderItemrDto);
     }
     
+    @Post('multiple')
+    @HttpCode(HttpStatus.CREATED)
+    async createMultiple(@Body() createOrderItemrDto: CreateOrderItemDto[]) {
+        return this.orderItemsService.createMultiple(createOrderItemrDto);
+    }
+    
     @Get(':orderId')
     async findAll(@Param('orderId') orderId: string) {
         return this.orderItemsService.findAll(orderId);

@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrdersService } from '../../services/orders.service';
 import { Order } from '../../models/order.model';
@@ -13,6 +13,9 @@ import { OrderItemsService } from '../../services/order-items.service';
 import { OrderItemsTable } from '../order-items-table/order-items-table';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { openUpdateDateDialog } from '../update-date-dialog/update-date-dialog';
+import { Product } from '../../models/product.model';
+import { AuthService } from '../../services/auth.service';
+import { OrderUploader } from '../order-uploader/order-uploader';
 
 @Component({
   selector: 'app-order-details',
@@ -22,10 +25,11 @@ import { openUpdateDateDialog } from '../update-date-dialog/update-date-dialog';
     DatePipe,
     MatButtonModule,
     DatePipe,
-    OrderItemsTable
+    OrderItemsTable,
+    OrderUploader
   ],
   providers: [
-{ provide: MAT_DATE_LOCALE, useValue: 'sr-Latn'}
+    { provide: MAT_DATE_LOCALE, useValue: 'sr-Latn' }
   ],
   templateUrl: './order-details.html',
   styleUrl: './order-details.scss',
@@ -40,7 +44,8 @@ export class OrderDetails {
   dialog = inject(MatDialog);
   dialogForUpdate = inject(MatDialog);
   private router = inject(Router);
-
+authService = inject(AuthService);
+  role = computed(() => this.authService.user() ? this.authService.user()!.roles[0] : null);
 
   constructor() {
     effect(() => {
@@ -48,20 +53,20 @@ export class OrderDetails {
     })
 
     this.loadOrder()
-      .then(() => {console.log('Order loaded successfully', this.order())});
+      .then(() => { console.log('Order loaded successfully', this.order()) });
 
   }
 
   async loadOrder() {
-      try{
-        const order = await this.ordersService.loadOrder(this.orderId());
-        this.order.set(order);
-        const orderItems = await this.orderItemsService.loadAllOrderItems(this.orderId());
-        this.orderItems.set(orderItems);
-      }
-      catch(error) {
-        console.error('Error loading order: ', error);
-      }
+    try {
+      const order = await this.ordersService.loadOrder(this.orderId());
+      this.order.set(order);
+      const orderItems = await this.orderItemsService.loadAllOrderItems(this.orderId());
+      this.orderItems.set(orderItems);
+    }
+    catch (error) {
+      console.error('Error loading order: ', error);
+    }
   }
 
   async addOrderItem() {
@@ -74,7 +79,7 @@ export class OrderDetails {
       }
     );
 
-    if(!newOrderItem) {
+    if (!newOrderItem) {
       return;
     }
 
@@ -97,30 +102,105 @@ export class OrderDetails {
       const newOrderItems = tempOrderItems.filter(orderItem => (orderItemId !== orderItem.id));
       this.orderItems.set(newOrderItems);
     }
-    catch(error) {
+    catch (error) {
       console.error('Error deleting order item:', error);
     }
   }
 
-  goToSupplyList(orderId: string) {
-    this.router.navigate(['/supply',orderId]);
+  goToSupplyList() {
+    this.router.navigate(['/supply', this.orderId()]);
   }
 
-  async addDeliveryDate(orderId: string) {
-      const newOrderData = await openUpdateDateDialog(
+  async addDeliveryDate() {
+    const newOrderData = await openUpdateDateDialog(
       this.dialogForUpdate,
       {
         title: 'Realan datum spremnosti robe',
         order: this.order()!,
-        customerId: this.order()?.customerId!
+        customerId: this.order()?.customerId!,
+        mode: 'production'
       }
     );
 
-    if(!newOrderData) {
+    if (!newOrderData) {
       return;
     }
 
-    
-    this.order.set({...newOrderData});
+
+    this.order.set({ ...newOrderData });
   }
+
+  async addLoadedDate() {
+    const newOrderData = await openUpdateDateDialog(
+      this.dialogForUpdate,
+      {
+        title: 'Utovar',
+        order: this.order()!,
+        customerId: this.order()?.customerId!,
+        mode: 'delivery'
+      }
+    );
+
+    if (!newOrderData) {
+      return;
+    }
+
+
+    this.order.set({ ...newOrderData });
+  }
+
+  async createNewOrderFromUndeliveredItems() {
+
+
+    try {
+
+      const newOrder: Partial<Order> = {
+        customerId: this.order()?.customerId,
+        orderName: this.order()?.orderName + ' - neisporuceni artikli',
+        deliveryDate: this.order()?.deliveryDate,
+        deliveryDateFromProduction: this.order()?.deliveryDateFromProduction,
+        orderDate: this.order()?.orderDate,
+        orderNo: this.order()?.orderNo,
+        state: 'loading',
+        
+      }
+
+      let newOrderItems = this.orderItems()
+        .filter(item => item.numberOfOrderedTp > item.numberOfReadyTp!)
+        .map(item => {
+          const newItem = { ...item };
+          newItem.numberOfOrderedTp = item.numberOfOrderedTp - item.numberOfReadyTp!;
+          newItem.numberOfReadyTp = 0;
+          return newItem;
+        });
+
+      if (newOrderItems.length === 0) {
+        alert('Svi artikli su isporučeni, nema neisporučenih artikala za kreiranje novog trebovanja.');
+        return;
+      }
+      const createdOrder = await this.ordersService.createOrder(newOrder);
+      newOrderItems = newOrderItems.map(item => {
+        item.orderId = createdOrder.id;
+        item.productId = (item.productId as Product).id;
+        return item;
+      })
+      const createdOrderItems = await this.orderItemsService.createMultipleOrderItems(newOrderItems);
+      this.orderId.set(createdOrder.id);
+      this.loadOrder().then(() => { console.log('Order loaded successfully', this.order()) });;
+    }
+    catch (error) {
+      console.error('Error creating order:', error);
+      alert('Došlo je do greške prilikom kreiranja trebovanja. Molimo pokušajte ponovo.');
+    }
+  }
+
+  async onOrderItemsUpload(items: Partial<OrderItem>[]) {
+    const newOrderItems = items.map(item => {
+      item.orderId = this.orderId();
+      return item;
+    })
+    await this.orderItemsService.createMultipleOrderItems(newOrderItems);
+    this.loadOrder().then(() => { console.log('Order loaded successfully', this.order()) })
+  }
+
 }

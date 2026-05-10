@@ -81,8 +81,119 @@ export class ProductionItemsTable {
   workbook.creator = 'Your App';
   workbook.created = new Date();
   
-  // Create main worksheet for grouped items
-  const mainWorksheet = workbook.addWorksheet('Proizvodni Artikli');
+  // Create main worksheet for grouped items with A4 landscape setup
+  const mainWorksheet = workbook.addWorksheet('Proizvodni Artikli', {
+    pageSetup: {
+      paperSize: 9, // A4 paper size
+      orientation: 'landscape',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0,
+      horizontalCentered: true,
+      verticalCentered: false,
+      margins: {
+        left: 0.7,
+        right: 0.7,
+        top: 0.75,
+        bottom: 0.75,
+        header: 0.3,
+        footer: 0.3
+      }
+    }
+  });
+  
+  // Set view options
+  mainWorksheet.views = [
+    {
+      state: 'normal',
+      zoomScale: 100,
+      showGridLines: false
+    }
+  ];
+  
+  // Helper function to calculate row height based on content
+  const calculateRowHeight = (rowData: any[], columnWidths: number[]): number => {
+    const baseFontSize = 10;
+    const baseLineHeight = 1.2;
+    const lineHeightPixels = baseFontSize * baseLineHeight;
+    const padding = 4;
+    
+    let maxLines = 1;
+    
+    rowData.forEach((value, colIndex) => {
+      const text = (value?.toString() || '').trim();
+      if (text === '') return;
+      
+      const columnWidth = columnWidths[colIndex];
+      if (!columnWidth) return;
+      
+      const avgCharWidth = 6.5;
+      const maxCharsPerLine = Math.floor((columnWidth * 7) / avgCharWidth);
+      
+      const words = text.split(' ');
+      let lines = 1;
+      let currentLineLength = 0;
+      
+      for (const word of words) {
+        const wordLength = word.length;
+        if (currentLineLength + wordLength + 1 > maxCharsPerLine) {
+          lines++;
+          currentLineLength = wordLength;
+        } else {
+          currentLineLength += wordLength + 1;
+        }
+      }
+      
+      const manualBreaks = (text.match(/\n/g) || []).length;
+      lines = Math.max(lines, manualBreaks + 1);
+      maxLines = Math.max(maxLines, lines);
+    });
+    
+    return Math.min(maxLines * lineHeightPixels + padding, 150);
+  };
+  
+  // Define column widths for main worksheet
+  const mainColumnWidths = [12, 32, 10, 15, 18];
+  
+  // ========== ADD TITLE SECTION ==========
+  const titleRow = mainWorksheet.addRow([`Proizvodni artikli - ${new Date().toLocaleDateString('sr-Latn')}`]);
+  mainWorksheet.mergeCells(`A${titleRow.number}:E${titleRow.number}`);
+  titleRow.getCell(1).font = {
+    bold: true,
+    size: 16,
+    name: 'Calibri',
+    color: { argb: 'FF2C3E50' }
+  };
+  titleRow.getCell(1).alignment = {
+    horizontal: 'center',
+    vertical: 'middle'
+  };
+  titleRow.getCell(1).fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFF0F4F8' }
+  };
+  titleRow.height = 30;
+  
+  // Add empty row for spacing
+  mainWorksheet.addRow([]);
+  
+  // Add info row
+  const infoRow = mainWorksheet.addRow([`Datum generisanja: ${new Date().toLocaleDateString('sr-Latn')}`]);
+  mainWorksheet.mergeCells(`A${infoRow.number}:E${infoRow.number}`);
+  infoRow.getCell(1).font = {
+    italic: true,
+    size: 10,
+    name: 'Calibri',
+    color: { argb: 'FF666666' }
+  };
+  infoRow.getCell(1).alignment = {
+    horizontal: 'left',
+    vertical: 'middle'
+  };
+  
+  // Add another empty row for spacing before headers
+  mainWorksheet.addRow([]);
   
   // Add headers for main table
   const mainHeaders = [
@@ -100,17 +211,18 @@ export class ProductionItemsTable {
     cell.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FF4472C4' } // Blue background
+      fgColor: { argb: 'FF4472C4' }
     };
     cell.font = {
       bold: true,
-      color: { argb: 'FFFFFFFF' }, // White text
-      size: 12,
+      color: { argb: 'FFFFFFFF' },
+      size: 11,
       name: 'Calibri'
     };
     cell.alignment = {
       horizontal: 'center',
-      vertical: 'middle'
+      vertical: 'middle',
+      wrapText: true
     };
     cell.border = {
       top: { style: 'thin' },
@@ -120,25 +232,38 @@ export class ProductionItemsTable {
     };
   });
   
+  // Calculate header row height
+  const mainHeaderHeight = calculateRowHeight(mainHeaders, mainColumnWidths);
+  mainHeaderRow.height = Math.max(25, mainHeaderHeight);
+  
+  // Set rows to repeat at top for printing
+  mainWorksheet.pageSetup.printTitlesRow = `${mainHeaderRow.number}:${mainHeaderRow.number}`;
+  
   // Create DatePipe for formatting dates
   const datePipe = new DatePipe('sr-Latn');
   
-  // Add main data rows
-  this.productionItems().forEach((item, mainIndex) => {
-    // Calculate quantity in unit of measure
+  // Prepare main data rows for height calculation
+  const mainDataRows = this.productionItems().map((item) => {
     const quantityInUnitOfMeasure = (item.unitsInTransportBox || 0) * (item.totalOrderedTp || 0);
-    
-    const mainRow = mainWorksheet.addRow([
+    return [
       item.productCode || '',
       item.productName || '',
       item.unitOfMeasure || '',
       quantityInUnitOfMeasure,
       item.totalOrderedTp || 0
-    ]);
+    ];
+  });
+  
+  // Add main data rows with calculated heights
+  mainDataRows.forEach((rowData, mainIndex) => {
+    const mainRow = mainWorksheet.addRow(rowData);
+    
+    // Calculate row height
+    const rowHeight = calculateRowHeight(rowData, mainColumnWidths);
+    mainRow.height = Math.max(18, rowHeight);
     
     // Style main row cells
     mainRow.eachCell((cell, colNumber) => {
-      // Add borders
       cell.border = {
         top: { style: 'thin' },
         left: { style: 'thin' },
@@ -147,7 +272,7 @@ export class ProductionItemsTable {
       };
       
       cell.font = {
-        size: 11,
+        size: 10,
         name: 'Calibri',
         color: { argb: 'FF000000' }
       };
@@ -157,7 +282,7 @@ export class ProductionItemsTable {
         cell.fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { argb: 'FFF5F5F5' } // Light gray
+          fgColor: { argb: 'FFF5F5F5' }
         };
       }
       
@@ -165,178 +290,373 @@ export class ProductionItemsTable {
       if (colNumber === 4 || colNumber === 5) { // Numeric columns
         cell.alignment = {
           horizontal: 'right',
-          vertical: 'middle'
+          vertical: 'top',
+          wrapText: true
         };
         cell.numFmt = '#,##0';
       } else {
         cell.alignment = {
           horizontal: 'left',
-          vertical: 'middle'
+          vertical: 'top',
+          wrapText: true
         };
       }
     });
-    
-    // Create a separate worksheet for child items if they exist
-    if (item.items && item.items.length > 0) {
-      // Check if we already have a details worksheet, if not create one
-      let detailsWorksheet = workbook.getWorksheet('Detalji po trebovanjima');
-      if (!detailsWorksheet) {
-        detailsWorksheet = workbook.addWorksheet('Detalji po trebovanjima');
-        
-        // Add headers for details table
-        const detailHeaders = [
-          'Šifra Artikla',
-          'Naziv Artikla',
-          'Poručeno TP',
-          'Odvojeno TP',
-          'Kupac',
-          'Trebovanje',
-          'Datum utovara'
-        ];
-        
-        const detailHeaderRow = detailsWorksheet.addRow(detailHeaders);
-        
-        // Style detail header row
-        detailHeaderRow.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF5A9BD5' } // Lighter blue for child table
-          };
-          cell.font = {
-            bold: true,
-            color: { argb: 'FFFFFFFF' },
-            size: 11,
-            name: 'Calibri'
-          };
-          cell.alignment = {
-            horizontal: 'center',
-            vertical: 'middle'
-          };
-          cell.border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' }
-          };
-        });
-      }
-      
-      // Add child items
-      item.items.forEach((childItem, childIndex) => {
-        // Safely access nested properties
-        const customerName = childItem.orderId?.customerId?.name || '';
-        const orderName = childItem.orderId?.orderName || '';
-        const deliveryDate = childItem.orderId?.deliveryDate 
-          ? datePipe.transform(childItem.orderId.deliveryDate, 'dd MMM yyyy') 
-          : '';
-        
-        const detailRow = detailsWorksheet.addRow([
-          item.productCode || '',
-          item.productName || '',
-          childItem.numberOfOrderedTp || 0,
-          childItem.numberOfReadyTp || 0,
-          customerName,
-          orderName,
-          deliveryDate || ''
-        ]);
-        
-        // Style detail row
-        detailRow.eachCell((cell, colNumber) => {
-          cell.border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' }
-          };
-          
-          cell.font = {
-            size: 10,
-            name: 'Calibri',
-            color: { argb: 'FF000000' }
-          };
-          
-          // Alternate row background
-          if (childIndex % 2 === 1) {
-            cell.fill = {
-              type: 'pattern',
-              pattern: 'solid',
-              fgColor: { argb: 'FFF9F9F9' }
-            };
-          }
-          
-          // Set alignment
-          if (colNumber === 3 || colNumber === 4) { // TP columns
-            cell.alignment = {
-              horizontal: 'right',
-              vertical: 'middle'
-            };
-            cell.numFmt = '#,##0';
-          } else if (colNumber === 7) { // Date column
-            cell.alignment = {
-              horizontal: 'center',
-              vertical: 'middle'
-            };
-          } else {
-            cell.alignment = {
-              horizontal: 'left',
-              vertical: 'middle'
-            };
-          }
-        });
-      });
-    }
   });
   
-  // Auto-fit main worksheet columns
-  mainWorksheet.columns.forEach((column) => {
+  // Set column widths for main worksheet
+  mainWorksheet.columns.forEach((column, index) => {
     if (column) {
-      let maxLength = 0;
-      column.eachCell!({ includeEmpty: true }, (cell) => {
-        const cellValue = cell.value ? cell.value.toString() : '';
-        maxLength = Math.max(maxLength, cellValue.length);
-      });
-      
-      // Set min and max widths
-      let minWidth = 12;
-      let maxWidth = 40;
-      
-      if (column.number === 2) { // Product name column
-        minWidth = 25;
-        maxWidth = 60;
-      } else if (column.number === 4 || column.number === 5) { // Numeric columns
-        minWidth = 15;
-        maxWidth = 20;
-      }
-      
-      column.width = Math.min(Math.max(maxLength + 2, minWidth), maxWidth);
+      column.width = mainColumnWidths[index];
     }
   });
   
-  // Auto-fit details worksheet columns if it exists
-  const detailsWorksheet = workbook.getWorksheet('Detalji po trebovanjima');
-  if (detailsWorksheet) {
-    detailsWorksheet.columns.forEach((column, index) => {
-      if (column) {
-        let maxLength = 0;
-        column.eachCell!({ includeEmpty: true }, (cell) => {
-          const cellValue = cell.value ? cell.value.toString() : '';
-          maxLength = Math.max(maxLength, cellValue.length);
-        });
-        
-        // Set specific widths
-        let width = Math.min(Math.max(maxLength + 2, 12), 50);
-        
-        // Adjust for specific columns
-        if (index === 0) width = 15; // Product code
-        if (index === 1) width = 30; // Product name
-        if (index === 4) width = 25; // Customer name
-        if (index === 5) width = 20; // Order name
-        if (index === 6) width = 15; // Delivery date
-        
-        column.width = width;
+  // Add summary row for main worksheet
+  if (this.productionItems().length > 0) {
+    const totalQuantityInJM = this.productionItems().reduce((sum, item) => 
+      sum + ((item.unitsInTransportBox || 0) * (item.totalOrderedTp || 0)), 0);
+    const totalTransportPackages = this.productionItems().reduce((sum, item) => 
+      sum + (item.totalOrderedTp || 0), 0);
+    
+    mainWorksheet.addRow([]);
+    
+    const summaryRow = mainWorksheet.addRow([
+      'UKUPNO:',
+      '',
+      '',
+      totalQuantityInJM,
+      totalTransportPackages
+    ]);
+    
+    summaryRow.eachCell((cell, colNumber) => {
+      cell.font = {
+        bold: true,
+        size: 11,
+        name: 'Calibri',
+        color: { argb: 'FF000000' }
+      };
+      
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE6F0FA' }
+      };
+      
+      cell.border = {
+        top: { style: 'medium' },
+        left: { style: colNumber === 1 ? 'medium' : 'thin' },
+        bottom: { style: 'medium' },
+        right: { style: colNumber === 5 ? 'medium' : 'thin' }
+      };
+      
+      cell.alignment = {
+        horizontal: colNumber === 4 || colNumber === 5 ? 'right' : (colNumber === 1 ? 'right' : 'center'),
+        vertical: 'middle',
+        wrapText: true
+      };
+      
+      if (colNumber === 4 || colNumber === 5) {
+        cell.numFmt = '#,##0';
       }
     });
+    
+    mainWorksheet.mergeCells(`A${summaryRow.number}:C${summaryRow.number}`);
+    summaryRow.height = 22;
+  }
+  
+  // Add footer to main worksheet
+  mainWorksheet.headerFooter = {
+    differentFirst: false,
+    differentOddEven: false,
+    oddHeader: '',
+    oddFooter: '&C&9Strana &P od &N',
+    evenHeader: '',
+    evenFooter: '&C&9Strana &P od &N'
+  };
+  
+  // ========== DETAILS WORKSHEET ==========
+  // Check if any items have child data
+  const hasChildItems = this.productionItems().some(item => item.items && item.items.length > 0);
+  
+  if (hasChildItems) {
+    // Create details worksheet with A4 landscape setup
+    const detailsWorksheet = workbook.addWorksheet('Detalji po trebovanjima', {
+      pageSetup: {
+        paperSize: 9,
+        orientation: 'landscape',
+        fitToPage: true,
+        fitToWidth: 1,
+        fitToHeight: 0,
+        horizontalCentered: true,
+        verticalCentered: false,
+        margins: {
+          left: 0.7,
+          right: 0.7,
+          top: 0.75,
+          bottom: 0.75,
+          header: 0.3,
+          footer: 0.3
+        }
+      }
+    });
+    
+    detailsWorksheet.views = [
+      {
+        state: 'normal',
+        zoomScale: 100,
+        showGridLines: false
+      }
+    ];
+    
+    // Define column widths for details worksheet
+    const detailColumnWidths = [12, 32, 14, 14, 25, 20, 15];
+    
+    // Add title for details worksheet
+    const detailTitleRow = detailsWorksheet.addRow([`Detalji proizvodnih artikala po trebovanjima`]);
+    detailsWorksheet.mergeCells(`A${detailTitleRow.number}:G${detailTitleRow.number}`);
+    detailTitleRow.getCell(1).font = {
+      bold: true,
+      size: 16,
+      name: 'Calibri',
+      color: { argb: 'FF2C3E50' }
+    };
+    detailTitleRow.getCell(1).alignment = {
+      horizontal: 'center',
+      vertical: 'middle'
+    };
+    detailTitleRow.getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFF0F4F8' }
+    };
+    detailTitleRow.height = 30;
+    
+    // Add empty row for spacing
+    detailsWorksheet.addRow([]);
+    
+    // Add info row
+    const detailInfoRow = detailsWorksheet.addRow([`Datum generisanja: ${new Date().toLocaleDateString('sr-Latn')}`]);
+    detailsWorksheet.mergeCells(`A${detailInfoRow.number}:G${detailInfoRow.number}`);
+    detailInfoRow.getCell(1).font = {
+      italic: true,
+      size: 10,
+      name: 'Calibri',
+      color: { argb: 'FF666666' }
+    };
+    detailInfoRow.getCell(1).alignment = {
+      horizontal: 'left',
+      vertical: 'middle'
+    };
+    
+    // Add another empty row for spacing before headers
+    detailsWorksheet.addRow([]);
+    
+    // Add headers for details table
+    const detailHeaders = [
+      'Šifra Artikla',
+      'Naziv Artikla',
+      'Poručeno TP',
+      'Odvojeno TP',
+      'Kupac',
+      'Trebovanje',
+      'Datum utovara'
+    ];
+    
+    const detailHeaderRow = detailsWorksheet.addRow(detailHeaders);
+    
+    // Style detail header row
+    detailHeaderRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF5A9BD5' }
+      };
+      cell.font = {
+        bold: true,
+        color: { argb: 'FFFFFFFF' },
+        size: 11,
+        name: 'Calibri'
+      };
+      cell.alignment = {
+        horizontal: 'center',
+        vertical: 'middle',
+        wrapText: true
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+    
+    // Calculate detail header height
+    const detailHeaderHeight = calculateRowHeight(detailHeaders, detailColumnWidths);
+    detailHeaderRow.height = Math.max(25, detailHeaderHeight);
+    
+    // Set rows to repeat at top for printing
+    detailsWorksheet.pageSetup.printTitlesRow = `${detailHeaderRow.number}:${detailHeaderRow.number}`;
+    
+    // Prepare and add detail data rows
+    let detailRowIndex = 0;
+    this.productionItems().forEach((item) => {
+      if (item.items && item.items.length > 0) {
+        item.items.forEach((childItem) => {
+          const customerName = childItem.orderId?.customerId?.name || '';
+          const orderName = childItem.orderId?.orderName || '';
+          const deliveryDate = childItem.orderId?.deliveryDate 
+            ? datePipe.transform(childItem.orderId.deliveryDate, 'dd MMM yyyy') 
+            : '';
+          
+          const rowData = [
+            item.productCode || '',
+            item.productName || '',
+            childItem.numberOfOrderedTp || 0,
+            childItem.numberOfReadyTp || 0,
+            customerName,
+            orderName,
+            deliveryDate || ''
+          ];
+          
+          const detailRow = detailsWorksheet.addRow(rowData);
+          
+          // Calculate row height
+          const rowHeight = calculateRowHeight(rowData, detailColumnWidths);
+          detailRow.height = Math.max(18, rowHeight);
+          
+          // Style detail row
+          detailRow.eachCell((cell, colNumber) => {
+            cell.border = {
+              top: { style: 'thin' },
+              left: { style: 'thin' },
+              bottom: { style: 'thin' },
+              right: { style: 'thin' }
+            };
+            
+            cell.font = {
+              size: 10,
+              name: 'Calibri',
+              color: { argb: 'FF000000' }
+            };
+            
+            // Alternate row background
+            if (detailRowIndex % 2 === 1) {
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFF9F9F9' }
+              };
+            }
+            
+            // Set alignment
+            if (colNumber === 3 || colNumber === 4) { // TP columns
+              cell.alignment = {
+                horizontal: 'right',
+                vertical: 'top',
+                wrapText: true
+              };
+              cell.numFmt = '#,##0';
+            } else if (colNumber === 7) { // Date column
+              cell.alignment = {
+                horizontal: 'center',
+                vertical: 'top',
+                wrapText: true
+              };
+            } else {
+              cell.alignment = {
+                horizontal: 'left',
+                vertical: 'top',
+                wrapText: true
+              };
+            }
+          });
+          
+          detailRowIndex++;
+        });
+      }
+    });
+    
+    // Set column widths for details worksheet
+    detailsWorksheet.columns.forEach((column, index) => {
+      if (column) {
+        column.width = detailColumnWidths[index];
+      }
+    });
+    
+    // Add summary row for details worksheet
+    if (detailRowIndex > 0) {
+      const totalOrdered = this.productionItems().reduce((sum, item) => {
+        if (item.items && item.items.length > 0) {
+          return sum + item.items.reduce((childSum, child) => childSum + (child.numberOfOrderedTp || 0), 0);
+        }
+        return sum;
+      }, 0);
+      
+      const totalReady = this.productionItems().reduce((sum, item) => {
+        if (item.items && item.items.length > 0) {
+          return sum + item.items.reduce((childSum, child) => childSum + (child.numberOfReadyTp || 0), 0);
+        }
+        return sum;
+      }, 0);
+      
+      detailsWorksheet.addRow([]);
+      
+      const detailSummaryRow = detailsWorksheet.addRow([
+        'UKUPNO:',
+        '',
+        totalOrdered,
+        totalReady,
+        '',
+        '',
+        ''
+      ]);
+      
+      detailSummaryRow.eachCell((cell, colNumber) => {
+        cell.font = {
+          bold: true,
+          size: 11,
+          name: 'Calibri',
+          color: { argb: 'FF000000' }
+        };
+        
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFE6F0FA' }
+        };
+        
+        cell.border = {
+          top: { style: 'medium' },
+          left: { style: colNumber === 1 ? 'medium' : 'thin' },
+          bottom: { style: 'medium' },
+          right: { style: colNumber === 7 ? 'medium' : 'thin' }
+        };
+        
+        cell.alignment = {
+          horizontal: colNumber === 3 || colNumber === 4 ? 'right' : (colNumber === 1 ? 'right' : 'center'),
+          vertical: 'middle',
+          wrapText: true
+        };
+        
+        if (colNumber === 3 || colNumber === 4) {
+          cell.numFmt = '#,##0';
+        }
+      });
+      
+      detailsWorksheet.mergeCells(`A${detailSummaryRow.number}:B${detailSummaryRow.number}`);
+      detailsWorksheet.mergeCells(`E${detailSummaryRow.number}:G${detailSummaryRow.number}`);
+      detailSummaryRow.height = 22;
+    }
+    
+    // Add footer to details worksheet
+    detailsWorksheet.headerFooter = {
+      differentFirst: false,
+      differentOddEven: false,
+      oddHeader: '',
+      oddFooter: '&C&9Strana &P od &N',
+      evenHeader: '',
+      evenFooter: '&C&9Strana &P od &N'
+    };
   }
   
   // Generate and download file

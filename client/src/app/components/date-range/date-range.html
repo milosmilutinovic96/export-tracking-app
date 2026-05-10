@@ -1,10 +1,9 @@
 <div class="date-range-container">
-  <h2>Za period</h2>
 
   <div class="date-pickers">
     <!-- Start Date Picker -->
     <mat-form-field appearance="fill">
-      <mat-label>Pocetni datum</mat-label>
+      <mat-label>Od</mat-label>
       <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" (ngModelChange)="onStartDateChange()"
         #startDateModel="ngModel">
       <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
@@ -13,7 +12,7 @@
 
     <!-- End Date Picker -->
     <mat-form-field appearance="fill">
-      <mat-label>Krajnji datum</mat-label>
+      <mat-label>Do</mat-label>
       <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" (ngModelChange)="onEndDateChange()"
         #endDateModel="ngModel">
       <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>

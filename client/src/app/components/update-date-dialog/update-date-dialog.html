@@ -3,10 +3,16 @@
     <mat-dialog-content [formGroup]="form">
         <mat-form-field appearance="outline">
             <mat-label>Realan datum utovara</mat-label>
-            <input matInput formControlName="deliveryDateFromProduction" [matDatepicker]="deliveryPicker">
+            <input matInput formControlName="date" [matDatepicker]="deliveryPicker">
             <mat-datepicker-toggle matSuffix [for]="deliveryPicker"></mat-datepicker-toggle>
             <mat-datepicker #deliveryPicker></mat-datepicker>
         </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Komentar</mat-label>
+            <textarea matInput formControlName="comment"></textarea>
+        </mat-form-field>
+
 
     </mat-dialog-content>
     <mat-dialog-actions>

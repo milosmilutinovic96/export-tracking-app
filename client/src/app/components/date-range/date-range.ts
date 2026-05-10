@@ -62,7 +62,6 @@ export class DateRange {
     } else {
       this.updateRangeSignal();
     }
-    console.log(this.selectedRange());
   }
 
   clearDates() {

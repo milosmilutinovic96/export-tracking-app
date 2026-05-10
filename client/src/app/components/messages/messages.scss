@@ -2,8 +2,12 @@
 
 .messages-container {
   display: flex;
-  position: relative;
+  position: absolute;
+  top: 74px;
+  left: 50%;
+  transform: translate(-50%, 0);
   margin-top: 20px;
+  margin: 0 auto;
   justify-content: center;
 }
 

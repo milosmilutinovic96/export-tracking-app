@@ -1,16 +1,52 @@
+tr.example-detail-row {
+  height: 0;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+  background: whitesmoke;
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+  background: #efefef;
+}
+
+
 .table-container {
-  position: relative;
-  
+
+  padding-left: 40px;
+  padding-right: 40px;
+
+  table {
+    margin-bottom: 20px;
+    .test {
+      border-bottom: 1px solid black;
+      text-align: right;
+    }
+
+    button {
+      margin-right: 5px;
+      background-color: #bee0e5;
+    }
+
+    ::ng-deep .mat-mdc-header-row {
+      background-color: #4A306D;
+      color: whitesmoke;
+    }
+
+
+  }
+
   .table-actions {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 16px;
-    
+    margin-bottom: 6px;
+    margin-top: 20px;
+
     .export-btn {
       display: flex;
       align-items: center;
       gap: 8px;
-      
+
       mat-icon {
         font-size: 20px;
         height: 20px;
@@ -18,4 +54,18 @@
       }
     }
   }
+
+}
+
+.child-table {
+  width: 100%;
+  background-color: #a9f4db31;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.child-table th {
+  background-color: #ED9B40;
+  color: rgb(17, 17, 23);
+  font-weight: 500;
 }

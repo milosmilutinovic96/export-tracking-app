@@ -22,7 +22,7 @@ export class CustomersService {
     }
 
     async findAll(): Promise<Customer[]> {
-        return this.customerModel.find().exec();
+        return this.customerModel.find().sort({name: 1}).exec();
     }
 
     async findOne(id: string): Promise<Customer> {
@@ -79,7 +79,6 @@ export class CustomersService {
             // Find all orders for this customer
             const orders = await this.orderModel.find({ customerId: objectId });
             const orderIds = orders.map(order => order._id);
-            console.log(orderIds);
             
             // Delete order items for these orders
             if (orderIds.length > 0) {
@@ -113,7 +112,7 @@ export class CustomersService {
                 message: `Customer "${customer.name}" and all associated orders/items deleted successfully`
             };
             
-        } catch (error) {
+        } catch (error: any) {
             throw new BadRequestException(`Delete failed: ${error.message}`);
         }
     }

@@ -48,7 +48,7 @@ export class EditOrderItemDialog {
       numberOfOrderedTp: this.data.orderItem?.numberOfOrderedTp || 0,
       numberOfReadyTp: 0,
       lot: this.data.orderItem?.lot || '',
-      dateOfExpire: this.data.orderItem?.dateOfExpire || new Date()
+      dateOfExpire: this.data.orderItem?.dateOfExpire
     });
   }
 

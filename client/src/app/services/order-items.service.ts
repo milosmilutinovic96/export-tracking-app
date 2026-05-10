@@ -6,7 +6,7 @@ import { firstValueFrom } from "rxjs";
 
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class OrderItemsService {
     http = inject(HttpClient);
@@ -19,6 +19,12 @@ export class OrderItemsService {
     async createOrderItem(orderItem: Partial<OrderItem>): Promise<OrderItem> {
         const orderItem$ = this.http.post<OrderItem>('/api/order-items', orderItem);
         return firstValueFrom(orderItem$);
+    }
+
+    async createMultipleOrderItems(orderItems: Partial<OrderItem>[]): Promise<OrderItem> {
+        const orderItems$ = this.http.post<OrderItem>('/api/order-items/multiple', orderItems);
+        return firstValueFrom(orderItems$);
+
     }
 
     async updateOrderItem(orderItemId: string, changes: Partial<OrderItem>): Promise<OrderItem> {

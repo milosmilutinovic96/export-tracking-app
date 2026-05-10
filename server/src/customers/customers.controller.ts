@@ -1,13 +1,17 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { AuthenticationGuard } from 'src/guards/authentication.guard';
+import { AdminGuard } from 'src/guards/admin.guard';
 
 @Controller('customers')
+@UseGuards(AuthenticationGuard)
 export class CustomersController {
     constructor(private readonly customersService: CustomersService) {}
 
     @Post()
+    @UseGuards(AdminGuard)
     @HttpCode(HttpStatus.CREATED)
     async create(@Body() createCustomerDto: CreateCustomerDto) {
         return this.customersService.create(createCustomerDto);

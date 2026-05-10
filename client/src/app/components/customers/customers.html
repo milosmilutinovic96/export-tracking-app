@@ -1,11 +1,13 @@
 <div class="customers-container">
     <h1>Lista kupaca</h1>
+    @if(this.role() === 'EXPORT' || this.role() === 'ADMIN') {
     <button class="add-customer-btn" matFab (click)="onAddCustomer()">
         <mat-icon>add</mat-icon>
     </button>
-    
+}
     <app-customers-card-list 
-        [customers]="customers()" 
+        [customers]="customers()"
+        [role]="this.role()" 
         (customerUpdated)="onCustomerUpdated($event)"
         (customerDeleted)="onCustomerDeleted($event)"
     />

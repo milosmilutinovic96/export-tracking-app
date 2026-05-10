@@ -1,9 +1,8 @@
-import { IsBoolean, IsDateString, IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsDateString, IsMongoId, IsNotEmpty, IsObject, IsOptional, IsString } from "class-validator";
 import { Types } from "mongoose";
 
 
 export class CreateOrderDto {
-    @IsMongoId()
     @IsNotEmpty()
     customerId: Types.ObjectId;
 
@@ -24,13 +23,15 @@ export class CreateOrderDto {
     @IsNotEmpty()
     deliveryDate: Date;
 
-    @IsDateString()
     @IsNotEmpty()
-    deliveryDateFromProduction: Date
+    @IsObject()
+    deliveryDateFromProduction: {date: Date, comment: string}
 
-    @IsBoolean()
+    @IsString()
+    @IsNotEmpty()
+    state: string;
+
     @IsOptional()
-    isDelivered?: boolean;
-
-
+    @IsObject()
+    loadedOn: {date: Date, comment: string};
 }

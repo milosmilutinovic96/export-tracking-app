@@ -39,7 +39,6 @@ export class EditOrderDialog {
     orderName: [''],
     orderDate: [''],
     deliveryDate: [''],
-    isDelivered: [false]
   });
 
   constructor() {
@@ -58,7 +57,8 @@ export class EditOrderDialog {
       this.updateOrder(this.data?.order!.id, orderProps);
     }
     else if(this.data.mode === 'create') {
-      orderProps.deliveryDateFromProduction = orderProps.deliveryDate;
+      orderProps.state = 'created';
+      orderProps.deliveryDateFromProduction = {date: orderProps.deliveryDate!, comment: ''};
       this.createOrder(orderProps);
     }
   } 

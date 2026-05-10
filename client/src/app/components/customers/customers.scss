@@ -2,10 +2,33 @@
     position: fixed;
     bottom: 50px;
     right: 50px;
+    background-color: #52796F;
+    color: white;
+    &:hover {
+    translate: -1px -1px;
+    
+    }
+        &:active {
+    translate: 1px 1px;
+    }
 }
 
 .customers-container {
     height: calc(100vh - 64px);
     display: flex;
     flex-direction: column;
+
+
+    h1 {
+ font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  font-size: 56px;
+  font-weight: 300;
+  line-height: 96px;
+  letter-spacing: -0.015em;
+  -webkit-background-clip: text;
+  background-clip: text;
+  margin: 0 0 1rem 0;
+  padding-left: 85px;
+    }
 }
+

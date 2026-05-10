@@ -20,7 +20,7 @@ import { openConfirmationDialog } from '../confirmation-dialog/confirmation-dial
 })
 export class OrdersCardList {
   orders = input.required<Order[]>();
-
+  role = input.required<string | null>();
   orderUpdated = output<Order>();
   orderDeleted = output<string>();
 
@@ -62,5 +62,15 @@ export class OrdersCardList {
 
   goToOrderDetails(orderId: string) {
     this.router.navigate(['/order-details', orderId]);
+  }
+
+  displayOrderState(state: string) {
+    if(state === 'created') {
+      return 'Trebovanje je kreirano';
+    } else if(state === 'loading') {
+      return 'Odvajanje je u toku';
+    } else {
+      return 'Trebovanje je isporučeno';
+    }
   }
 }

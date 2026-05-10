@@ -1,11 +1,30 @@
 
 button {
-    margin-left: 10px;
+    margin-left: 5px;
 }
 
 .table-container {
-  position: relative;
-  width: 100%;
+  // position: relative;
+  margin-left: 40px;
+  margin-right: 40px;
+
+  table {
+    // padding: 10px;
+    margin-bottom: 20px;
+    button {
+      margin-right: 5px;
+      margin-bottom: 5px;
+      background-color: #bee0e5;
+      width: 20;
+    }
+    th, td {
+      max-width: 300px;
+    }
+  }
+  ::ng-deep .mat-mdc-header-row {
+    background-color: #4A306D;
+    color: white;
+  }
   
   .table-actions {
     display: flex;
@@ -25,3 +44,18 @@ button {
     }
   }
 }
+
+::ng-deep .mat-mdc-row.completed {
+  background-color: #ffff00;
+}
+
+// ::ng-deep .mat-mdc-row.active {
+//   // background-color: #ebebe8;
+//   // border-left: 4px solid #2196f3;
+// }
+
+::ng-deep .mat-mdc-row.status-delivered {
+  background-color: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
