@@ -28,8 +28,14 @@ button {
   
   .table-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     margin-bottom: 16px;
+    width: 90vw;
+  
+
+    .filter {
+      width: 300px;
+    }
     
     .export-btn {
       display: flex;

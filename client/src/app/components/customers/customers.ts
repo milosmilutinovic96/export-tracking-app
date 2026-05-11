@@ -8,6 +8,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { openEditCustomerDialog } from '../edit-customer-dialog/edit-customer-dialog';
 import { MessagesService } from '../../services/messages.service';
 import { AuthService } from '../../services/auth.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-customers',
@@ -15,6 +17,8 @@ import { AuthService } from '../../services/auth.service';
     CustomersCardList,
     MatButtonModule,
     MatIconModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   templateUrl: './customers.html',
   styleUrl: './customers.scss',
@@ -27,6 +31,7 @@ export class Customers {
   messagesService = inject(MessagesService);
   authService = inject(AuthService);
   role = computed(() => this.authService.user() ? this.authService.user()!.roles[0] : null);
+  filterValue = signal<string>('');
 
   constructor() {
     effect(() => {
@@ -35,6 +40,10 @@ export class Customers {
     this.loadCustomers()
       .then(() => console.log('Customers loaded successfully', this.customers()));
   }
+
+  filteredCustomers = computed(() => {
+    return this.customers().filter(customer => customer.name.toLowerCase().includes(this.filterValue()));
+  })
 
   async loadCustomers() {
 
@@ -84,5 +93,10 @@ export class Customers {
     }
     const newCustomers = [...this.customers(), newCustomer];
     this.customers.set(newCustomers);
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.filterValue.set(filterValue.trim().toLowerCase());
   }
 }

@@ -59,12 +59,21 @@ export class OrderItemsTable {
   constructor() {
     effect(() => {
       this.dataSource.data = this.orderItems();
+      this.dataSource.filterPredicate = this.customFilterPredicate();
       console.log('Order items: ', this.orderItems());
     })
   }
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+  private customFilterPredicate() {
+    return (data: OrderItem, filter: string): boolean => {
+      const filterValue = filter.trim().toLowerCase();
+
+      return data.productCode.toLowerCase().includes(filterValue) ||
+             (data.productId as Product).productName.toLowerCase().includes(filterValue);
+    }
   }
 
   async onEditOrderItem(orderItem: OrderItem, flag: string) {

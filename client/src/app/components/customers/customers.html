@@ -1,14 +1,14 @@
 <div class="customers-container">
     <h1>Lista kupaca</h1>
+    <mat-form-field class="filter">
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Uneti naziv kupca" #input>
+    </mat-form-field>
     @if(this.role() === 'EXPORT' || this.role() === 'ADMIN') {
     <button class="add-customer-btn" matFab (click)="onAddCustomer()">
         <mat-icon>add</mat-icon>
     </button>
-}
-    <app-customers-card-list 
-        [customers]="customers()"
-        [role]="this.role()" 
-        (customerUpdated)="onCustomerUpdated($event)"
-        (customerDeleted)="onCustomerDeleted($event)"
-    />
+    }
+    <app-customers-card-list [customers]="filteredCustomers()" [role]="this.role()"
+        (customerUpdated)="onCustomerUpdated($event)" (customerDeleted)="onCustomerDeleted($event)" />
 </div>
